@@ -1,0 +1,46 @@
+{
+	"name": "battleship-fe",
+	"version": "0.1.0",
+	"private": true,
+	"dependencies": {
+		"battleship-fe": "file:",
+		"cra-template-typescript": "1.2.0",
+		"packages": "^0.0.8",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0",
+		"react-scripts": "^3.0.1",
+		"web-vitals": "^4.2.4"
+	},
+	"scripts": {
+		"start": "react-scripts --openssl-legacy-provider start",
+		"build": "react-scripts --openssl-legacy-provider build",
+		"test": "react-scripts test",
+		"eject": "react-scripts eject"
+	},
+	"eslintConfig": {
+		"extends": [
+			"react-app",
+			"react-app/jest"
+		]
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	},
+	"devDependencies": {
+		"@testing-library/dom": "^10.4.0",
+		"@testing-library/react": "^16.1.0",
+		"@types/mocha": "^10.0.10",
+		"@types/react": "^19.0.3",
+		"@types/react-dom": "^19.0.2",
+		"typescript": "^5.7.2"
+	}
+}
