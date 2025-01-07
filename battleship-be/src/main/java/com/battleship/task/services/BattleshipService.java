@@ -1,5 +1,8 @@
 package com.battleship.task.services;
 
+import com.battleship.task.dtos.ShootRequestDto;
+import com.battleship.task.dtos.ShotResponse;
+import com.battleship.task.models.GameState;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
@@ -11,17 +14,24 @@ import java.util.Random;
 @SessionScope
 public class BattleshipService {
 
+    private static final int SHOTS = 25;
     // ships sizes from big to small, because small ships first slows down the process of placing the big ones
     private final int[] SHIPS = {5, 4, 3, 3, 2, 2, 2, 1, 1, 1};
     private int[][] gameBoard;
+    private int shotsLeft;
+    private boolean gameInitialized;
 
     public BattleshipService() {
-        this.gameBoard = createGameBoard();
+        this.gameInitialized = false;
     }
 
-    public int[][] getGameBoard() {
-        return gameBoard;
+    public GameState startGame() {
+        this.gameBoard = createGameBoard();
+        this.shotsLeft = SHOTS;
+        this.gameInitialized = true;
+        return new GameState(shotsLeft, false);
     }
+
 
     public int[][] createGameBoard() {
         int[][] gameBoard = new int[10][10];
@@ -96,5 +106,39 @@ public class BattleshipService {
                 gameBoard[row + i][col] = 1;
             }
         }
+    }
+
+    public ShotResponse shoot(ShootRequestDto shootRequestDto) {
+        if (!gameInitialized) {
+            throw new IllegalStateException("Game not initialized");
+        }
+
+        int x = shootRequestDto.x();
+        int y = shootRequestDto.y();
+        boolean hit = false;
+
+        if (x >= 0 && x < 10 && y >= 0 && y < 10) {
+            if (gameBoard[x][y] == 1) {
+                gameBoard[x][y] = 2;
+                hit = true;
+            } else if (gameBoard[x][y] == 0) {
+                shotsLeft--;
+                gameBoard[x][y] = 3;
+            }
+        }
+
+        boolean gameOver = isGameOver();
+        return new ShotResponse(hit, shotsLeft, gameOver);
+    }
+
+    public boolean isGameOver() {
+        if (shotsLeft <= 0) return true;
+
+        for (int i = 0; i < gameBoard.length; i++) {
+            for (int j = 0; j < gameBoard[i].length; j++) {
+                if (gameBoard[i][j] == 1) return false;
+            }
+        }
+        return true;
     }
 }
