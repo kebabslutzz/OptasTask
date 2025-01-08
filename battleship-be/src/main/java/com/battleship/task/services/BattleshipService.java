@@ -14,7 +14,7 @@ import java.util.Random;
 @SessionScope
 public class BattleshipService {
 
-    private static final int SHOTS = 25;
+    private static final int SHOTS = 50;
     // ships sizes from big to small, because small ships first slows down the process of placing the big ones
     private final int[] SHIPS = {5, 4, 3, 3, 2, 2, 2, 1, 1, 1};
     private int[][] gameBoard;
@@ -128,7 +128,8 @@ public class BattleshipService {
         }
 
         boolean gameOver = isGameOver();
-        return new ShotResponse(hit, shotsLeft, gameOver);
+        boolean gameWon = isGameWon();
+        return new ShotResponse(hit, shotsLeft, gameOver, gameWon);
     }
 
     public boolean isGameOver() {
@@ -140,5 +141,9 @@ public class BattleshipService {
             }
         }
         return true;
+    }
+
+    public boolean isGameWon() {
+        return isGameOver() && shotsLeft > 0;
     }
 }

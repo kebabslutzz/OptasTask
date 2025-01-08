@@ -32,8 +32,7 @@
 	align-items: center;
 }
 
-.game-over {
-	color: red;
+.game-state-container {
 	font-size: 50px;
 	position: absolute;
 	top: 50%;
@@ -43,4 +42,12 @@
 	background-color: rgba(0, 0, 0, 0.8);
 	padding: 20px;
 	border-radius: 10px;
+}
+
+.game-over {
+	color: red;
+}
+
+.game-won {
+	color: green;
 }

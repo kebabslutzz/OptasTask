@@ -9,6 +9,7 @@ import GameState from '../../interfaces/GameState';
 const Grid: React.FC = () => {
 	const [shotsLeft, setShotsLeft] = useState(25);
 	const [gameOver, setGameOver] = useState(false);
+	const [gameWon, setGameWon] = useState(false);
 	const [gameStarted, setGameStarted] = useState(false);
 	const [gridState, setGridState] = useState<(boolean | null)[][]>(
 		Array(10)
@@ -19,6 +20,7 @@ const Grid: React.FC = () => {
 	const handleUnauthorized = () => {
 		setGameStarted(false);
 		setGameOver(false);
+		setGameWon(false);
 		setShotsLeft(25);
 		setGridState(
 			Array(10)
@@ -50,6 +52,7 @@ const Grid: React.FC = () => {
 				setShotsLeft(result.shotsLeft);
 				setGameStarted(true);
 				setGameOver(result.gameOver);
+				setGameWon(result.gameWon);
 				setGridState(
 					Array(10)
 						.fill(null)
@@ -62,7 +65,7 @@ const Grid: React.FC = () => {
 	};
 
 	const handleClick = async (row: number, col: number) => {
-		if (!gameStarted || gameOver || gridState[row][col] !== null) {
+		if (!gameStarted || gameOver || gridState[row][col] !== null || gameWon) {
 			return;
 		}
 
@@ -87,6 +90,7 @@ const Grid: React.FC = () => {
 				newGridState[row][col] = result.hit;
 				setGridState(newGridState);
 				setShotsLeft(result.shotsLeft);
+				setGameWon(result.gameWon);
 				setGameOver(result.gameOver);
 			}
 		} catch (error) {
@@ -127,7 +131,8 @@ const Grid: React.FC = () => {
 					{gameStarted ? 'Restart Game' : 'Start Game'}
 				</button>
 				<p>Shots Left: {shotsLeft}</p>
-				{gameOver && <p className='game-over'>Game Over!</p>}
+				{gameWon && <p className='game-state-container game-won'>Game Won!</p>}
+				{gameOver && !gameWon && <p className='game-state-container game-over'>Game Over!</p>}
 			</div>
 			<div className='grid-container'>{renderGrid()}</div>
 		</div>

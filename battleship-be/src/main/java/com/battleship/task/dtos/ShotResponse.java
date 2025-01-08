@@ -1,3 +1,3 @@
 package com.battleship.task.dtos;
 
-public record ShotResponse(boolean hit, int shotsLeft, boolean gameOver) { }
+public record ShotResponse(boolean hit, int shotsLeft, boolean gameOver, boolean gameWon) { }
