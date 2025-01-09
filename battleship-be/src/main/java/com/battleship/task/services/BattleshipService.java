@@ -162,7 +162,6 @@ public class BattleshipService {
         for (Ship ship : ships) {
             for (int[] coord : ship.getCoordinates()) {
                 if (coord[0] == x && coord[1] == y) {
-                    System.out.println("Ship ID: " + ship.getId());
                     return ship;
                 }
             }
