@@ -5,13 +5,15 @@ import DirectionsBoatIcon from '@mui/icons-material/DirectionsBoat';
 import BlockIcon from '@mui/icons-material/Block';
 import ShotResponse from '../../interfaces/ShotResponse';
 import GameState from '../../interfaces/GameState';
+import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
+import AnchorIcon from '@mui/icons-material/Anchor';
 
 const Grid: React.FC = () => {
 	const [shotsLeft, setShotsLeft] = useState(25);
 	const [gameOver, setGameOver] = useState(false);
 	const [gameWon, setGameWon] = useState(false);
 	const [gameStarted, setGameStarted] = useState(false);
-	const [gridState, setGridState] = useState<(boolean | null)[][]>(
+	const [gridState, setGridState] = useState<(boolean | null | 'destroyed')[][]>(
 		Array(10)
 			.fill(null)
 			.map(() => Array(10).fill(null))
@@ -88,6 +90,15 @@ const Grid: React.FC = () => {
 				const result: ShotResponse = await response.json();
 				const newGridState = [...gridState];
 				newGridState[row][col] = result.hit;
+
+				if (result.destroyedShipCoordinates) {
+					result.destroyedShipCoordinates.forEach(([x, y]) => {
+						if (newGridState[y] && newGridState[y][x] !== undefined) {
+							newGridState[y][x] = 'destroyed';
+						}
+					});
+				}
+
 				setGridState(newGridState);
 				setShotsLeft(result.shotsLeft);
 				setGameWon(result.gameWon);
@@ -112,8 +123,10 @@ const Grid: React.FC = () => {
 					>
 						{cellState === null ? (
 							<WavesIcon className='wave' />
-						) : cellState ? (
+						) : cellState === true ? (
 							<DirectionsBoatIcon className='ship' />
+						) : cellState === 'destroyed' ? (
+							<AnchorIcon className='destroyed' />
 						) : (
 							<BlockIcon className='miss' />
 						)}

@@ -19,6 +19,10 @@
 }
 
 .ship {
+	color: darkgreen;
+}
+
+.destroyed {
 	color: black;
 }
 

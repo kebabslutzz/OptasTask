@@ -3,6 +3,7 @@ interface ShotResponse {
 	shotsLeft: number;
 	gameOver: boolean;
 	gameWon: boolean;
+	destroyedShipCoordinates: number[][];
 }
 
 export default ShotResponse;
