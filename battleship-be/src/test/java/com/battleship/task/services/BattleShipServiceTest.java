@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
@@ -39,8 +40,6 @@ public class BattleShipServiceTest {
         assertFalse(gameState.gameOver());
     }
 
-
-
     @Test
     void testShootHitsShipWithFakeBoard() throws Exception {
         int[][] gameBoard = new int[10][10];
@@ -51,7 +50,9 @@ public class BattleShipServiceTest {
         shipCoordinates.add(new int[]{0, 0});
         shipCoordinates.add(new int[]{0, 1});
 
-        setupFakeBoard(gameBoard, shipCoordinates);
+        boolean gameInitialized = true;
+
+        setupFakeBoard(gameBoard, shipCoordinates, gameInitialized);
 
         ShootRequestDto shootRequestDto = new ShootRequestDto(0, 0);
         ShotResponse shotResponse = battleshipService.shoot(shootRequestDto);
@@ -73,7 +74,9 @@ public class BattleShipServiceTest {
         shipCoordinates.add(new int[]{0, 0});
         shipCoordinates.add(new int[]{0, 1});
 
-        setupFakeBoard(gameBoard, shipCoordinates);
+        boolean gameInitialized = true;
+
+        setupFakeBoard(gameBoard, shipCoordinates, gameInitialized);
 
         ShootRequestDto shootRequestDto = new ShootRequestDto(1, 1);
         ShotResponse shotResponse = battleshipService.shoot(shootRequestDto);
@@ -86,7 +89,7 @@ public class BattleShipServiceTest {
     }
 
     @Test
-    void testShootDestroyShipWithFakeBoard() throws Exception {
+    void testShootDestroysShipWithFakeBoard() throws Exception {
         int[][] gameBoard = new int[10][10];
         gameBoard[0][0] = 1; // Placing a ship at (0,0)
         gameBoard[0][1] = 1; // Place a ship at (0,1)
@@ -95,7 +98,9 @@ public class BattleShipServiceTest {
         shipCoordinates.add(new int[]{0, 0});
         shipCoordinates.add(new int[]{0, 1});
 
-        setupFakeBoard(gameBoard, shipCoordinates);
+        boolean gameInitialized = true;
+
+        setupFakeBoard(gameBoard, shipCoordinates, gameInitialized);
 
         // Making two shots to destroy the ship
         ShootRequestDto shootRequestDto1 = new ShootRequestDto(0, 0);
@@ -118,6 +123,27 @@ public class BattleShipServiceTest {
         assertNotNull(shotResponse2.destroyedShipCoordinates());
         assertEquals(2, shotResponse2.destroyedShipCoordinates().size());
         assertEquals(shipCoordinates, shotResponse2.destroyedShipCoordinates());
+    }
+
+    @Test
+    void testShootWithFakeBoardGameNotInitialized() throws Exception {
+        int[][] gameBoard = new int[10][10];
+        gameBoard[0][0] = 1; // Placing a ship at (0,0)
+
+        List<int[]> shipCoordinates = new ArrayList<>();
+        shipCoordinates.add(new int[]{0, 0});
+
+        boolean gameInitialized = false;
+
+        setupFakeBoard(gameBoard, shipCoordinates, gameInitialized);
+
+        ShootRequestDto shootRequestDto = new ShootRequestDto(0, 0);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
+            battleshipService.shoot(shootRequestDto);
+        });
+
+        assertEquals("Game not initialized", exception.getMessage());
     }
 
     @Test
@@ -162,8 +188,9 @@ public class BattleShipServiceTest {
         List<int[]> shipCoordinates = new ArrayList<>();
         shipCoordinates.add(new int[]{9, 9});
         gameBoard[9][9] = 1; // Placing a ship at (9,9)
+        boolean gameInitialized = true;
 
-        setupFakeBoard(gameBoard, shipCoordinates);
+        setupFakeBoard(gameBoard, shipCoordinates, gameInitialized);
 
         for (int i = 0; i < 25; i++) {
             ShootRequestDto shootRequestDto = new ShootRequestDto(i / 10, i % 10);
@@ -179,13 +206,39 @@ public class BattleShipServiceTest {
         }
     }
 
-    private void setupFakeBoard(int[][] gameBoard, List<int[]> shipCoordinates) throws Exception {
-        List<Ship> ships = new ArrayList<>();
-        ships.add(new Ship(0, shipCoordinates));
-        setGameBoard(gameBoard, ships);
+    @Test
+    void testFindShipByCoordinate() throws Exception {
+        int[][] gameBoard = new int[10][10];
+        gameBoard[0][0] = 1; // Placing a ship at (0,0)
+        gameBoard[0][1] = 1; // Placing a ship at (0,1)
+
+        List<int[]> shipCoordinates = new ArrayList<>();
+        shipCoordinates.add(new int[]{0, 0});
+        shipCoordinates.add(new int[]{0, 1});
+
+        boolean gameInitialized = true;
+
+        setupFakeBoard(gameBoard, shipCoordinates, gameInitialized);
+
+        Method findShipByCoordinateMethod = BattleshipService.class.getDeclaredMethod("findShipByCoordinate", int.class, int.class);
+        findShipByCoordinateMethod.setAccessible(true);
+        Ship foundShip = (Ship)findShipByCoordinateMethod.invoke(battleshipService, 0, 0);
+
+        assertNotNull(foundShip);
+        assertEquals(0, foundShip.getId());
+        assertEquals(shipCoordinates, foundShip.getCoordinates());
+
+        Ship notFoundShip = (Ship)findShipByCoordinateMethod.invoke(battleshipService, 1, 1);
+        assertNull(notFoundShip);
     }
 
-    private void setGameBoard(int[][] gameBoard, List<Ship> ships) throws Exception {
+    private void setupFakeBoard(int[][] gameBoard, List<int[]> shipCoordinates, boolean gameInitialized) throws Exception {
+        List<Ship> ships = new ArrayList<>();
+        ships.add(new Ship(0, shipCoordinates));
+        setGameBoard(gameBoard, ships, gameInitialized);
+    }
+
+    private void setGameBoard(int[][] gameBoard, List<Ship> ships, boolean gameInitialized) throws Exception {
         Field gameBoardField = BattleshipService.class.getDeclaredField("gameBoard");
         gameBoardField.setAccessible(true);
         gameBoardField.set(battleshipService, gameBoard);
@@ -196,7 +249,7 @@ public class BattleShipServiceTest {
 
         Field gameInitializedField = BattleshipService.class.getDeclaredField("gameInitialized");
         gameInitializedField.setAccessible(true);
-        gameInitializedField.set(battleshipService, true);
+        gameInitializedField.set(battleshipService, gameInitialized);
 
         Field shotsLeftField = BattleshipService.class.getDeclaredField("shotsLeft");
         shotsLeftField.setAccessible(true);
