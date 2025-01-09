@@ -37,3 +37,16 @@
 .game-won {
 	color: green;
 }
+
+.start-game-button {
+	font-weight: 700 !important;
+	color: white !important;
+	border-radius: 20px !important;
+	background-color: #aaa6d4 !important;
+	border: none !important;
+}
+
+.disabled-start-game-button {
+	background-color: #191b3f !important;
+	color: #504e76 !important;
+}

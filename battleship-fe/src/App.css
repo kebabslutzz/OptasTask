@@ -38,11 +38,11 @@
 }
 
 .wave {
-	color: blue;
+	color: white;
 }
 
 .ship {
-	color: darkgreen;
+	color: #00c894;
 }
 
 .destroyed {
@@ -54,5 +54,6 @@
 }
 .lower-icon {
 	position: relative;
+	font-weight: 700;
 	top: 7px;
 }

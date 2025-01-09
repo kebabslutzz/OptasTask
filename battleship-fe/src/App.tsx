@@ -1,10 +1,10 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import GameBoard from './components/gameBoard/GameBoard';
+import GameWindow from './components/gameWindow/GameWindow';
 
 function App() {
-	return <GameBoard />;
+	return <GameWindow />;
 }
 
 export default App;

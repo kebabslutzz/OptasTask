@@ -1,0 +1,9 @@
+.grid-button {
+	background-color: #8480ad;
+	border-radius: 0px;
+	border: 2px solid #5e5b85;
+}
+
+.not-started {
+	background-color: #5e5b85;
+}
