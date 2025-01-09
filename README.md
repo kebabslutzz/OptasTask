@@ -2,8 +2,11 @@
 
 Battle ship game
 
-Game UI:
-![alt text](image-1.png)
+Game UI
+b:\CodingStuff\optasTask\OptasTask\GameUI.png
 
 Game over!
-![alt text](image.png)
+b:\CodingStuff\optasTask\OptasTask\GameOver.png
+
+Game Won!
+b:\CodingStuff\optasTask\OptasTask\GameWon.png

@@ -7,9 +7,11 @@ import ShotResponse from '../../interfaces/ShotResponse';
 import GameState from '../../interfaces/GameState';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import AnchorIcon from '@mui/icons-material/Anchor';
+import { Button } from '@mui/material';
 
 const Grid: React.FC = () => {
-	const [shotsLeft, setShotsLeft] = useState(25);
+	const shots = 25;
+	const [shotsLeft, setShotsLeft] = useState(shots);
 	const [gameOver, setGameOver] = useState(false);
 	const [gameWon, setGameWon] = useState(false);
 	const [gameStarted, setGameStarted] = useState(false);
@@ -140,10 +142,12 @@ const Grid: React.FC = () => {
 	return (
 		<div className='game-container'>
 			<div className='game-info'>
-				<button onClick={startGame} disabled={gameStarted && !gameOver}>
+				<Button onClick={startGame} variant='contained'>
 					{gameStarted ? 'Restart Game' : 'Start Game'}
-				</button>
-				<p>Shots Left: {shotsLeft}</p>
+				</Button>
+				<h3>
+					Shots Left: <span style={{ color: shotsLeft >= shots * 0.2 ? 'inherit' : 'red' }}>{shotsLeft}</span>
+				</h3>
 				{gameWon && <p className='game-state-container game-won'>Game Won!</p>}
 				{gameOver && !gameWon && <p className='game-state-container game-over'>Game Over!</p>}
 			</div>
