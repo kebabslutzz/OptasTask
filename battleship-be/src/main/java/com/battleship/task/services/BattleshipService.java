@@ -1,15 +1,14 @@
 package com.battleship.task.services;
 
 import com.battleship.task.dtos.ShootRequestDto;
-import com.battleship.task.dtos.ShotResponse;
+import com.battleship.task.dtos.ShotResponseDto;
+import com.battleship.task.models.GameBoard;
 import com.battleship.task.models.GameState;
 import com.battleship.task.models.Ship;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -18,13 +17,10 @@ import java.util.Random;
 public class BattleshipService {
 
     private static final int SHOTS = 25;
+    private final int GAMEBOARD_SIZE = 10;
     // ships sizes from big to small, because small ships first slows down the process of placing the big ones
     private final int[] SHIPS = {5, 4, 3, 3, 2, 2, 2, 1, 1, 1};
-    private final int EMPTY = 0;
-    private final int SHIP = 1;
-    private final int HIT = 2;
-    private final int MISS = 3;
-    private int[][] gameBoard;
+    private GameBoard gameBoard;
     private int shotsLeft;
     private boolean gameInitialized;
     private List<Ship> ships;
@@ -38,29 +34,15 @@ public class BattleshipService {
 
     public GameState startGame() {
         this.ships = new ArrayList<>();
-        this.gameBoard = createGameBoard();
+        this.gameBoard = new GameBoard(GAMEBOARD_SIZE);
         this.shotsLeft = SHOTS;
         this.gameInitialized = true;
         this.shipIdCounter = 0;
+        placeShips();
         return new GameState(shotsLeft, false);
     }
 
-
-    public int[][] createGameBoard() {
-        int[][] gameBoard = new int[10][10];
-        fillBoard(gameBoard);
-        placeShips(gameBoard);
-
-        return gameBoard;
-    }
-
-    private void fillBoard(int[][] gameBoard) {
-        for (int i = 0; i < gameBoard.length; i++) {
-            Arrays.fill(gameBoard[i], EMPTY);
-        }
-    }
-
-    private void placeShips(int[][] gameBoard) {
+    private void placeShips() {
         Random random = new Random();
 
         for (int ship : SHIPS) {
@@ -70,8 +52,8 @@ public class BattleshipService {
                 int col = random.nextInt(10);
                 boolean isHorizontal = random.nextBoolean();
 
-                if (isPlaceAvailable(gameBoard, row, col, ship, isHorizontal)) {
-                    List<int[]> shipCoordinates =  placeShip(gameBoard, row, col, ship, isHorizontal);
+                if (isPlaceAvailable(row, col, ship, isHorizontal)) {
+                    List<int[]> shipCoordinates =  placeShip(row, col, ship, isHorizontal);
                     ships.add(new Ship(shipIdCounter++, shipCoordinates));
                     isPlaced = true;
                 }
@@ -79,16 +61,16 @@ public class BattleshipService {
         }
     }
 
-    private boolean isPlaceAvailable(int[][] gameBoard, int row, int col, int shipSize, boolean isHorizontal) {
+    private boolean isPlaceAvailable(int row, int col, int shipSize, boolean isHorizontal) {
         if (isHorizontal) {
-            if (col + shipSize > 10)
+            if (col + shipSize > gameBoard.getSize())
                 return false;
             for (int iRow = -1; iRow <= 1; iRow++) {
                 for (int iCol = -1; iCol <= shipSize; iCol++) {
                     int jRow = iRow + row;
                     int jCol = iCol + col;
                     // check if the cell (or surrounding one) is occupied by another ship or out of bounds
-                    if (jRow >= 0 && jRow < 10 && jCol >= 0 && jCol < 10 && gameBoard[jRow][jCol] == SHIP) {
+                    if (jRow >= 0 && jRow < 10 && jCol >= 0 && jCol < 10 && !gameBoard.isEmpty(jRow, jCol)) {
                         return false;
                     }
                 }
@@ -101,7 +83,7 @@ public class BattleshipService {
                     int jRow = iRow + row;
                     int jCol = iCol + col;
                     // check if the cell (or surrounding one) is occupied by another ship or out of bounds
-                    if (jRow >= 0 && jRow < 10 && jCol >= 0 && jCol < 10 && gameBoard[jRow][jCol] == SHIP ) {
+                    if (jRow >= 0 && jRow < 10 && jCol >= 0 && jCol < 10 && !gameBoard.isEmpty(jRow, jCol)) {
                         return false;
                     }
                 }
@@ -110,23 +92,23 @@ public class BattleshipService {
         return true;
     }
 
-    private List<int[]> placeShip(int[][] gameBoard, int row, int col, int shipSize, boolean isHorizontal) {
+    private List<int[]> placeShip(int row, int col, int shipSize, boolean isHorizontal) {
         List<int[]> coordinates = new ArrayList<>();
         if (isHorizontal) {
             for (int i = 0; i < shipSize; i++) {
-                gameBoard[row][col + i] = SHIP;
+                gameBoard.placeShip(row, col + i, shipIdCounter);
                 coordinates.add(new int[]{row, col + i});
             }
         } else {
             for (int i = 0; i < shipSize; i++) {
-                gameBoard[row + i][col] = SHIP;
+                gameBoard.placeShip(row + i, col, shipIdCounter);
                 coordinates.add(new int[]{row + i, col});
             }
         }
         return coordinates;
     }
 
-    public ShotResponse shoot(ShootRequestDto shootRequestDto) {
+    public ShotResponseDto shoot(ShootRequestDto shootRequestDto) {
         if (!gameInitialized) {
             throw new IllegalStateException("Game not initialized");
         }
@@ -136,45 +118,31 @@ public class BattleshipService {
         boolean hit = false;
         List<int[]> destroyedShipCoordinates = null;
 
-        if (x >= 0 && x < 10 && y >= 0 && y < 10) {
-            if (gameBoard[x][y] == SHIP) {
-                gameBoard[x][y] = HIT;
+        if (x >= 0 && x < gameBoard.getSize() && y >= 0 && y < gameBoard.getSize()) {
+            int shipId = gameBoard.getShipId(x, y);
+            if (shipId != -1) {
                 hit = true;
-                Ship hitShip = findShipByCoordinate(x, y);
-                if (hitShip != null) {
-                    hitShip.hit();
-                    if (hitShip.isDestroyed()) {
-                        destroyedShipCoordinates = hitShip.getCoordinates();
-                    }
+                Ship hitShip = ships.get(shipId);
+                hitShip.hit();
+                if (hitShip.isDestroyed()) {
+                    destroyedShipCoordinates = hitShip.getCoordinates();
                 }
-            } else if (gameBoard[x][y] == EMPTY) {
+            }  else {
                 shotsLeft--;
-                gameBoard[x][y] = MISS;
             }
         }
 
         boolean gameOver = isGameOver();
         boolean gameWon = isGameWon();
-        return new ShotResponse(hit, shotsLeft, gameOver, gameWon, destroyedShipCoordinates);
-    }
-
-    private Ship findShipByCoordinate(int x, int y) {
-        for (Ship ship : ships) {
-            for (int[] coord : ship.getCoordinates()) {
-                if (coord[0] == x && coord[1] == y) {
-                    return ship;
-                }
-            }
-        }
-        return null;
+        return new ShotResponseDto(hit, shotsLeft, gameOver, gameWon, destroyedShipCoordinates);
     }
 
     public boolean isGameOver() {
         if (shotsLeft <= 0) return true;
 
-        for (int i = 0; i < gameBoard.length; i++) {
-            for (int j = 0; j < gameBoard[i].length; j++) {
-                if (gameBoard[i][j] == SHIP) return false;
+        for (Ship ship : ships) {
+            if (!ship.isDestroyed()) {
+                return false;
             }
         }
         return true;
