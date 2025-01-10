@@ -31,15 +31,19 @@ Made by Kasparas Putrius 2024
 ## Game screenshots
 
 Game not started yet:
+
 ![alt text](images/notStartedGame.png)
 
 Game in progress:
+
 ![alt text](images/gameInProfress.png)
 
 Game over:
+
 ![alt text](images/GameOver.png)
 
 Game Won:
+
 ![alt text](images/GameWon.png)
 
 ## Technology used
@@ -58,10 +62,13 @@ Game Won:
 ## Tests
 
 Tests for BattleShipService:
+
 ![alt text](images/serviceTests.png)
 
 Tests for BattleShipController:
+
 ![alt text](images/controllerTests.png)
 
 Test for server side coverage:
+
 ![alt text](images/testCoverage.png)
