@@ -37,10 +37,10 @@ Game in progress:
 ![alt text](gameInProfress.png)
 
 Game over:
-![alt text](gameOver.png)
+![alt text](GameOver.png)
 
 Game Won:
-![alt text](gameWon.png)
+![alt text](GameWon.png)
 
 ## Technology used
 
