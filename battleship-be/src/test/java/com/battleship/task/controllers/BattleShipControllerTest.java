@@ -1,7 +1,7 @@
 package com.battleship.task.controllers;
 
 import com.battleship.task.dtos.ShootRequestDto;
-import com.battleship.task.dtos.ShotResponse;
+import com.battleship.task.dtos.ShotResponseDto;
 import com.battleship.task.models.GameState;
 import com.battleship.task.services.BattleshipService;
 import jakarta.servlet.http.HttpSession;
@@ -9,11 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -68,10 +65,10 @@ public class BattleShipControllerTest {
         boolean gameWon = false;
         List<int[]> destroyedShipCoordinates = null;
 
-        ShotResponse shotResponse = new ShotResponse(hit, shotsLeft, gameOver, gameWon, destroyedShipCoordinates);
+        ShotResponseDto shotResponse = new ShotResponseDto(hit, shotsLeft, gameOver, gameWon, destroyedShipCoordinates);
         when(battleshipService.shoot(shootRequestDto)).thenReturn(shotResponse);
 
-        ShotResponse response = battleShipController.shoot(shootRequestDto);
+        ShotResponseDto response = battleShipController.shoot(shootRequestDto);
         assertNotNull(response);
         assertEquals(hit, response.hit());
         assertEquals(shotsLeft, response.shotsLeft());
