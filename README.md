@@ -57,7 +57,7 @@ Game Won:
 ## Running project
 
 - Start server side by running _BattleshipApplication.java_
-- Start server by opening terminal in project folder and running **_npm run start_**
+- Start client side by opening terminal in project _battleship-fe_ folder and running **_npm run start_**
 
 ## Tests
 
