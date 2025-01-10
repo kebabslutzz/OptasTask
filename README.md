@@ -18,7 +18,7 @@ Made by Kasparas Putrius 2024
 * Ships have to be deployd in such way that there would be at least 1 space between them. Ships can touch diagonally neither
 * Correct way to deploy ships:
 
-  ![alt text](correctDeployment.png)
+  ![alt text](images/correctDeployment.png)
 
 - Player tries to guess where the program has placed the ships
 - Player make guess by guess, and the program shows if the player hit a part of the ship, sunk it or missed
@@ -31,16 +31,16 @@ Made by Kasparas Putrius 2024
 ## Game screenshots
 
 Game not started yet:
-![alt text](notStartedGame.png)
+![alt text](images/notStartedGame.png)
 
 Game in progress:
-![alt text](gameInProfress.png)
+![alt text](images/gameInProfress.png)
 
 Game over:
-![alt text](GameOver.png)
+![alt text](images/GameOver.png)
 
 Game Won:
-![alt text](GameWon.png)
+![alt text](images/GameWon.png)
 
 ## Technology used
 
@@ -57,5 +57,11 @@ Game Won:
 
 ## Tests
 
+Tests for BattleShipService:
+![alt text](images/serviceTests.png)
+
+Tests for BattleShipController:
+![alt text](images/controllerTests.png)
+
 Test for server side coverage:
-![alt text](testCoverage.png)
+![alt text](images/testCoverage.png)
